@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spin-kub-demo #!!!!! DULEZITY jmeno deploymentu
+  labels:
+    app: spin-kub-demo
+spec:
+  selector:
+    matchLabels:
+      app: spin-kub-demo #jaky pody ovlivni tenhle deployment
+  template:
+    metadata:
+      labels:
+        app: spin-kub-demo #label app=grpcecho
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: spin-kub-demo
+        image: impy/spinnaker-simpledemo
+        ports:
+        - containerPort: 8000 #na jakym portu bezi aplikace
+        # env:
+        # - name: ENDEVEL_PROJECT_ID
+        #   value: endevel
+        # - name: DB_URL
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: cars-sql
+        #       key: db_url
+        resources:
+          requests:
+            cpu: 20m #1000m = 100% jadra
+            memory: 20Mi
+          limits:
+            cpu: 40m #1000m = 100% jadra
+            memory: 40Mi
+      #   volumeMounts:
+      #   - mountPath: /credentials
+      #     name: service-account-token
+      # volumes:
+      # - name: service-account-token
+      #   secret:
+      #     secretName: google-application-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spin-kub-demo
+spec:
+  type: ClusterIP
+  selector:
+    app: spin-kub-demo
+  ports:
+  - name: grpc
+    port: 80
+    targetPort: 8000
+    
